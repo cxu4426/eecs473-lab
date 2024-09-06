@@ -1,11 +1,11 @@
-#include <assert.h>
-
-
-
-int RSPinNum_t;
-int RWPinNum_t;
-uint8_t DBPinNum_t[8];
-int EnablePinNum_t;
+    #include <assert.h>
+    
+    
+    
+    int RSPinNum_t;
+    int RWPinNum_t;
+    uint8_t DBPinNum_t[8];
+    int EnablePinNum_t;
     
 class LCD{
     String cur_msg;
@@ -205,6 +205,7 @@ void setup() {
     Serial.println(writeString1[i]);
   }
   Display1.write_string(writeString1, 1, 0);
+  Display1.write_byte('R', 1, 1);
 }
 
 void loop() {
