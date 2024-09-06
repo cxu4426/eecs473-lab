@@ -1,11 +1,11 @@
-    #include <assert.h>
-    
-    
-    
-    int RSPinNum_t;
-    int RWPinNum_t;
-    uint8_t DBPinNum_t[8];
-    int EnablePinNum_t;
+#include <assert.h>
+
+
+
+int RSPinNum_t;
+int RWPinNum_t;
+uint8_t DBPinNum_t[8];
+int EnablePinNum_t;
     
 class LCD{
     String cur_msg;
@@ -58,7 +58,7 @@ void LCD::write_string(char msg[], int line, int position){
   size_t str_len = sizeof(msg) / sizeof(msg[0]); // will this include the null char \0 uhhhh only one way to find out :D xD
   for(int i = 0; i < str_len - 1; i++){
     write_reg((int) msg[i], 1);
-    if (write_addr == 0x0F){
+    /*if (write_addr == 0x0F){
       write_addr = 0x40;
       byte regWrite = 128 | 0x40;
       write_reg(regWrite, 0);
@@ -66,8 +66,8 @@ void LCD::write_string(char msg[], int line, int position){
       write_addr = 0x00;
       byte regWrite = 128 | 0x00;
       write_reg(regWrite, 0);
-    }
-    delay(1);
+    }*/
+    delay(500);
   }
 }
 
@@ -199,7 +199,11 @@ void setup() {
   Serial.println("Done Setup");
   Display1.clear_screen();
   delay(2000);
-  char writeString1[] = {'ARDUINO RULES!'};
+  char writeString1[] = "ARDUINO RULES!";
+  Serial.println(sizeof(writeString1) / sizeof(writeString1[0]));
+  for (int i = 0; i < 15; i++){
+    Serial.println(writeString1[i]);
+  }
   Display1.write_string(writeString1, 1, 0);
 }
 
