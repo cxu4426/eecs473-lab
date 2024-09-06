@@ -6,6 +6,9 @@
     int RWPinNum_t;
     uint8_t DBPinNum_t[8];
     int EnablePinNum_t;
+    char roombaString[] = "Roomba!";
+    char BLEString[] = "BLE 4ever";
+    char blank = ' ';
     
 class LCD{
     String cur_msg;
@@ -19,7 +22,7 @@ class LCD{
 
     public:
         void clear_screen();
-        void write_string(char msg[], int line, int position);
+        void write_line(char msg[], int line, int position);
         void write_reg(byte regData, boolean regSelect); //Set regSelect to 0 for IR, 1 for DR
         byte read_reg(boolean regSelect); //Set regSelect to 0 for IR, 1 for DR
         void write_byte(char character, int line, int position);
@@ -41,23 +44,22 @@ byte LCD::get_status(){
   return status;
 }
 
-void LCD::write_string(char msg[], int line, int position){
-  assert(line <= numLines_t);
+void LCD::write_line(char msg[], int line, int position){
+  assert(line <= (numLines_t + 1));
   assert(position < 16);
 
   int write_addr = (line - 1) * 64 + position;
-  byte regData = 128 | 
-                 (bitRead(write_addr, 6)) | 
-                 (bitRead(write_addr, 5)) | 
-                 (bitRead(write_addr, 4)) |
-                 (bitRead(write_addr, 3)) | 
-                 (bitRead(write_addr, 2)) | 
-                 (bitRead(write_addr, 1)) | 
-                 (bitRead(write_addr, 0));
+  Serial.print("Write addr: ");
+  Serial.println(write_addr, HEX);
+  byte regData = 128 | write_addr;
   write_reg(regData, 0);
-  size_t str_len = sizeof(msg) / sizeof(msg[0]); // will this include the null char \0 uhhhh only one way to find out :D xD
-  for(int i = 0; i < str_len - 1; i++){
+  size_t str_len = strlen(msg); // will this include the null char \0 uhhhh only one way to find out :D xD
+  Serial.print("String Length: ");
+  Serial.println(str_len);
+  for(int i = 0; i < ((int)str_len); i++){
     write_reg((int) msg[i], 1);
+    Serial.print("Printing ");
+    Serial.println(msg[i]);
     /*if (write_addr == 0x0F){
       write_addr = 0x40;
       byte regWrite = 128 | 0x40;
@@ -67,8 +69,13 @@ void LCD::write_string(char msg[], int line, int position){
       byte regWrite = 128 | 0x00;
       write_reg(regWrite, 0);
     }*/
-    delay(500);
+    delay(25);
   }
+  for(int i = str_len; i < 16; i++){
+    write_reg((int) blank, 1);
+    delay(25);
+  }
+  //Serial.println("Left Print");
 }
 
 void LCD::write_byte(char character, int line, int position){
@@ -120,6 +127,9 @@ void LCD::screen_init(int numBits, int numLines, int fontType){
   
   byte regData = (1 << 5) | (numBits_t << 4) | (numLines_t << 3) | (fontType_t << 2);
 
+  Serial.print("regData: ");
+  Serial.println(regData, BIN);
+
   write_reg(regData, 0);
   regData = 0b00000110; //entry mode 
   delay(1);
@@ -166,6 +176,7 @@ void LCD::write_reg(byte regData, boolean regSelect){
     delay(1);
     digitalWrite(EnablePinNum_t, 0);    
   }
+  delay(5);
 }
 
 byte LCD::read_reg(boolean regSelect){
@@ -200,17 +211,29 @@ void setup() {
   Display1.clear_screen();
   delay(2000);
   char writeString1[] = "ARDUINO RULES!";
-  Serial.println(sizeof(writeString1) / sizeof(writeString1[0]));
-  for (int i = 0; i < 15; i++){
+  char testChar = 'Z';
+  //Serial.println(sizeof(writeString1) / sizeof(writeString1[0]));
+  /*for (int i = 0; i < 15; i++){
     Serial.println(writeString1[i]);
-  }
-  Display1.write_string(writeString1, 1, 0);
-  Display1.write_byte('R', 1, 1);
+  }*/
+  //Display1.write_string(writeString1, 1, 0);
+  //Display1.write_reg((int) testChar, 1);
+  //Display1.write_byte('Z', 2, 0);  
+  //Display1.write_reg(0xC0, 0);
+  Display1.write_line(writeString1, 1, 0);
+  delay(100);
+  //byte debugReturn = Display1.read_reg(0);
+  //Serial.print("Address: ");
+  //Serial.println(debugReturn, BIN);
+  Serial.println("Leaving void setup");
+  
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  /*Display1.write_string("Roomba!", 2, 0);
+  //Serial.println("In Void Loop");
+  Display1.write_line(roombaString, 2, 0);
   delay(2000);
-  Display1.write_string("BLE 4ever", 2, 0);*/
+  Display1.write_line(BLEString, 2, 0);
+  delay(2000);
 }
