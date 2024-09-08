@@ -6,6 +6,8 @@
 #define BACKWARD    'B'
 #define RIGHT       'R'
 #define STOP        'S'
+#define FASTER      'U'
+#define SLOWER      'D'
 
 /**
  * @brief Start and end delimiters
@@ -31,7 +33,7 @@ char command;
  * are welcome to add them and change the code.
  */
 const int IDLE  = 0;
-const int SPEED = 150;
+int SPEED = 75; // Initialize to medium speed
 
 /**
  * @brief H bridge (SN754410) pin connections to Arduino.
@@ -215,6 +217,12 @@ void moveRobot(char command) {
             motorControl(LEFT_MOTOR,STOP);
             motorControl(RIGHT_MOTOR,STOP);
             break;
+        case FASTER:
+            SPEED = SPEED + 5;
+            Serial << "Speed increased to " << SPEED << '\n';
+        case SLOWER:
+            SPEED = SPEED - 5;
+            Serial << "Speed decreased to " << SPEED << '\n';
         default:
             Serial.println("ERROR: Unknown command in legal packet");
             break;

@@ -15,7 +15,7 @@ while 1:
             ser.write(str.encode('C21RE'))
         elif key == b's':
             ser.write(str.encode('C21BE'))
-        elif key == b'+':
-            ser.write(str.encode('C21+E'))
-        elif key == b'-':
-            ser.write(str.encode('C21-E'))
+        elif key == b'u':
+            ser.write(str.encode('C21UE'))
+        elif key == b'd':
+            ser.write(str.encode('C21DE'))
