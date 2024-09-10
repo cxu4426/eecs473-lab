@@ -1,3 +1,4 @@
+#include "LCD_Interface.h"
 /**
  * @brief Control commands available for the robot.
  */
@@ -8,6 +9,7 @@
 #define STOP        'S'
 #define FASTER      'U'
 #define SLOWER      'D'
+#define SWITCH      '`'
 
 /**
  * @brief Start and end delimiters
@@ -52,7 +54,7 @@ const int A_1 = 7;
 /// control Y2 (left motor negative)
 const int A_2 = 8;
 /// control Y3 (right motor positive)
-const int A_3 = 9;
+const int A_3 = 10;
 /// control Y4 (right motor negative)
 const int A_4 = 13;
 #define LEFT_MOTOR  true
@@ -218,11 +220,15 @@ void moveRobot(char command) {
             motorControl(RIGHT_MOTOR,STOP);
             break;
         case FASTER:
-            SPEED = SPEED + 5;
-            Serial << "Speed increased to " << SPEED << '\n';
+            SPEED = SPEED + 25;
+            Serial.print("Speed increased to ");
+            Serial.println(SPEED);
         case SLOWER:
-            SPEED = SPEED - 5;
-            Serial << "Speed decreased to " << SPEED << '\n';
+            SPEED = SPEED - 25;
+            Serial.print("Speed decreased to ");
+            Serial.println(SPEED);
+        case SWITCH:
+            // TODO: add case where if ` you switch to display mode
         default:
             Serial.println("ERROR: Unknown command in legal packet");
             break;
