@@ -25,7 +25,7 @@ const char EoP = 'E';
 const char nullTerminator = '\0';
 unsigned char inByte;
 #define MESSAGE_MAX_SIZE 9
-char message[MESSAGE_MAX_SIZE];
+char message[MESSAGE_MAX_SIZE+1];
 char command;
 
 /**
@@ -97,7 +97,7 @@ void motorControl(bool ifLeftMotor, char command);
  */
 void setup() {
     // Delay start so that voltage can rise to high
-    delay(1000)
+    delay(5000);
     
     Serial.begin(9600);
     Serial.println("START");
@@ -115,9 +115,8 @@ void setup() {
 
     int RSPinNum     = 2;  
     int RWPinNum     = A4;
-    int EnablePinNum = 4;
-    int DBPinNum[8]  = {A0, A1, A2, A3, 9, 10, 11, 12};
-  
+    int EnablePinNum = 4; 
+    int DBPinNum[8]  = {A0, A1, A2, A3, 6, 10, 11, 12};  
   
     Display1.set_pins(RSPinNum, RWPinNum, EnablePinNum, DBPinNum);
     Display1.screen_init(4, 2, 0);
@@ -208,7 +207,7 @@ bool parsePacket() {
         message[i] = (char)inByte;
     }
     message[message_size] = nullTerminator;
-
+    
     /// step 4. get EoP
     while (Serial.available() < 1) {};
     inByte = Serial.read();
@@ -221,7 +220,8 @@ bool parsePacket() {
 }
 
 void displayMessage(char input_message[]) {
-    Display1.write_line(input_message[1], 1, 0);
+    //Serial.println(input_message);
+    Display1.write_line(&input_message[1], 1, 0);
 }
 
 void moveRobot(char command) {

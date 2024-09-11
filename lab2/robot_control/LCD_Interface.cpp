@@ -157,23 +157,38 @@ void LCD::write_reg(byte regData, boolean regSelect){
   digitalWrite(RWPinNum_t, 0);
   delay(1);
 
-  digitalWrite(EnablePinNum_t, 1);
+  digitalWrite(EnablePinNum_t, 0);
   delay(1);
 
   if (numBits_t == 0){ // 4-bit mode
     for (int i = 4; i < 8; i++){
       digitalWrite(DBPinNum_t[i], bitRead(regData, i));
     }
-    delay(1);
+    /*delay(1);
     digitalWrite(EnablePinNum_t, 0);
     delay(1);
     digitalWrite(EnablePinNum_t, 1);
+    delay(1);*/
+    digitalWrite(EnablePinNum_t, LOW);
+    delayMicroseconds(1);    
+    digitalWrite(EnablePinNum_t, HIGH);
+    delayMicroseconds(1);    // enable pulse must be >450 ns
+    digitalWrite(EnablePinNum_t, LOW);
+    delayMicroseconds(100);
     delay(1);
     for (int i = 0; i < 4; i++){
       digitalWrite(DBPinNum_t[i+4], bitRead(regData, i));
     }
+    /*
     delay(1);
     digitalWrite(EnablePinNum_t, 0);
+    delay(1);*/
+    digitalWrite(EnablePinNum_t, LOW);
+    delayMicroseconds(1);    
+    digitalWrite(EnablePinNum_t, HIGH);
+    delayMicroseconds(1);    // enable pulse must be >450 ns
+    digitalWrite(EnablePinNum_t, LOW);
+    delayMicroseconds(100);
     delay(1);
   } 
   else { // if numBits_t == 1 (8-bit mode)

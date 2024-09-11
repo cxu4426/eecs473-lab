@@ -3,6 +3,7 @@ import serial
 ser = serial.Serial('COM5', 9600)
 
 speed = 75
+length = 1
 
 mode = 0 # 0: drive, 1: display
 
@@ -48,8 +49,8 @@ while 1:
                 buffer = []
                 print("Entering display mode (mode = 4)")
         elif mode == 4: # display mode
-            if key == b'\r': # enter key                 
-                length = len(buffer) + 1
+            if key == b'\r': # enter key
+                print("".join(buffer))
                 packet = f'C{length}4{"".join(buffer)}E'
                         
                 ser.write(str.encode(packet))
@@ -57,11 +58,13 @@ while 1:
                 
                 # clear buffer after sending
                 buffer = []
+                length = 1
             elif key == b'`':  # switch to drive mode
                 mode = 0
                 print("Entering drive mode (mode = 0)")
             else: # collect keyboard input in buffer
                 if len(buffer) < 8:
                     buffer.append(key.decode())
+                    length = length + 1
                 else:
                     print("Buffer is full (max 8 chars)! Press enter to send.")
