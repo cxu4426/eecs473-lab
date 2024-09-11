@@ -2,7 +2,20 @@ import msvcrt
 import serial
 ser = serial.Serial('COM5', 9600)
 
+speed = 75
+
 mode = 0 # 0: drive, 1: display
+
+"""
+Packet format:
+    C    (start of message)
+    #    (length of message in chars)
+    #    (command [0:3])
+    TEXT (stuff you are sending)
+    E    (end of packet)
+"""
+
+print("Entering drive mode (mode 0)")
 
 while 1:
     # Poll keyboard
@@ -21,16 +34,34 @@ while 1:
                 ser.write(str.encode('C21BE'))
             elif key == b'=':
                 ser.write(str.encode('C21UE'))
+                print("turbo mode")
+                speed = min(speed + 25, 150)
+                print(speed)
             elif key == b'-':
                 ser.write(str.encode('C21DE'))
+                print("snail mode")
+                speed = max(speed - 25, 0)
+                print(speed)
             elif key == b'`': # stop driving and switch to display mode
                 ser.write(str.encode('C21SE'))
-                ser.write(str.encode('C21`E')) # TODO: might not work :D
-                mode = 1
-        elif mode == 1: # display mode
-            if key == '`':
-                # clear display
-                ser.write(str.encode(key)) # TODO: might not work :D
+                mode = 4
+                buffer = []
+                print("Entering display mode (mode = 4)")
+        elif mode == 4: # display mode
+            if key == b'\r': # enter key                 
+                length = len(buffer) + 1
+                packet = f'C{length}4{"".join(buffer)}E'
+                        
+                ser.write(str.encode(packet))
+                print(f"Sent packet: {packet}")
+                
+                # clear buffer after sending
+                buffer = []
+            elif key == b'`':  # switch to drive mode
                 mode = 0
-            else while !<enter key>
-                collect chars into buffer and then ser.write
+                print("Entering drive mode (mode = 0)")
+            else: # collect keyboard input in buffer
+                if len(buffer) < 8:
+                    buffer.append(key.decode())
+                else:
+                    print("Buffer is full (max 8 chars)! Press enter to send.")

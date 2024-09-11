@@ -1,33 +1,11 @@
+#include "LCD_Interface.h"
 #include <assert.h>
-
-
 
 int RSPinNum_t;
 int RWPinNum_t;
 uint8_t DBPinNum_t[8];
 int EnablePinNum_t;
-char roombaString[] = "Roomba!";
-char BLEString[] = "BLE 4ever";
 char blank = ' ';
-    
-class LCD{
-  String cur_msg;
-  int cur_addr; // top left corner address
-  int numBits_t;
-  int numLines_t;
-  int fontType_t;
-  
-  byte get_status();
-  
-  public:
-    void clear_screen();
-    void write_line(char msg[], int line, int position);
-    void write_reg(byte regData, boolean regSelect); //Set regSelect to 0 for IR, 1 for DR
-    byte read_reg(boolean regSelect); //Set regSelect to 0 for IR, 1 for DR
-    void write_byte(char character, int line, int position);
-    void set_pins(int RSPinNum, int RWPinNum, int EnablePinNum, int DBPinNum[]);
-    void screen_init(int numBits, int numLines, int fontType);
-};
 
 byte LCD::get_status(){
   /*
@@ -54,6 +32,8 @@ void LCD::write_line(char msg[], int line, int position){
   assert(line <= (numLines_t + 1));
   assert(position < 16);
 
+  Serial.println(msg);
+
   int write_addr = (line - 1) * 64 + position;
   // Serial.print("Write addr: ");
   // Serial.println(write_addr, HEX);
@@ -62,13 +42,13 @@ void LCD::write_line(char msg[], int line, int position){
   write_reg(regData, 0);
 
   size_t str_len = strlen(msg);
-  // Serial.print("String Length: ");
-  // Serial.println(str_len);
+  Serial.print("String Length: ");
+  Serial.println(str_len);
 
   for(int i = 0; i < ((int)str_len); i++){
     write_reg((int) msg[i], 1);
-    // Serial.print("Printing ");
-    // Serial.println(msg[i]);
+    Serial.print("Printing ");
+    Serial.println(msg[i]);
 
     // update address correctly when it needs to wrap around
     if (write_addr == 0x0F){
@@ -186,7 +166,7 @@ void LCD::write_reg(byte regData, boolean regSelect){
     }
     delay(1);
     digitalWrite(EnablePinNum_t, 0);
-    delay(10);
+    delay(1);
     digitalWrite(EnablePinNum_t, 1);
     delay(1);
     for (int i = 0; i < 4; i++){
@@ -225,47 +205,4 @@ byte LCD::read_reg(boolean regSelect){
   }
 
   return readData;
-}
-
-// Initialize global LCD class
-LCD Display1;
-
-void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(9600);
-  int RSPinNum     = 2;  
-  int RWPinNum     = A4;
-  int EnablePinNum = 4;
-  int DBPinNum[8]  = {A0, A1, A2, A3, 6, 10, 11, 12};
-  
-  Display1.set_pins(RSPinNum, RWPinNum, EnablePinNum, DBPinNum);
-  //Serial.println("Pins Setup");
-  Display1.screen_init(4, 2, 0);
-  //Serial.println("Screen Init");
-  Serial.println("Done Setup");
-  Display1.clear_screen();
-  delay(2000);
-  char writeString1[] = "ARDUINO RULES!";
-  char testChar = 'Z';
-  //Serial.println(sizeof(writeString1) / sizeof(writeString1[0]));
-  /*for (int i = 0; i < 15; i++){
-    Serial.println(writeString1[i]);
-  }*/
-  //Display1.write_string(writeString1, 1, 0);
-  //Display1.write_reg((int) testChar, 1);
-  //Display1.write_byte('Z', 2, 0);  
-  //Display1.write_reg(0xC0, 0);
-  Display1.write_line(writeString1, 1, 0);
-  delay(100);
-  //byte debugReturn = Display1.read_reg(0);
-  //Serial.print("Address: ");
-  //Serial.println(debugReturn, BIN);  
-}
-
-void loop() {
-  // put your main code here, to run repeatedly:
-  Display1.write_line(roombaString, 2, 0);
-  delay(2000);
-  Display1.write_line(BLEString, 2, 0);
-  delay(2000);
 }

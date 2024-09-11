@@ -1,4 +1,5 @@
 #include "LCD_Interface.h"
+
 /**
  * @brief Control commands available for the robot.
  */
@@ -9,7 +10,6 @@
 #define STOP        'S'
 #define FASTER      'U'
 #define SLOWER      'D'
-#define SWITCH      '`'
 
 /**
  * @brief Start and end delimiters
@@ -24,7 +24,7 @@ const char EoP = 'E';
  */
 const char nullTerminator = '\0';
 unsigned char inByte;
-#define MESSAGE_MAX_SIZE 5
+#define MESSAGE_MAX_SIZE 9
 char message[MESSAGE_MAX_SIZE];
 char command;
 
@@ -54,11 +54,18 @@ const int A_1 = 7;
 /// control Y2 (left motor negative)
 const int A_2 = 8;
 /// control Y3 (right motor positive)
-const int A_3 = 10;
+const int A_3 = 9;
 /// control Y4 (right motor negative)
 const int A_4 = 13;
 #define LEFT_MOTOR  true
 #define RIGHT_MOTOR false
+
+/** 
+ *  @brief Constants and variables for LCD
+*/
+char roombaString[] = "Roomba!";
+char BLEString[] = "BLE 4ever";
+LCD Display1;
 
 /**
  * @brief Packet parser for serial communication
@@ -102,6 +109,22 @@ void setup() {
     delay(10);
     Serial.println("Ready, Steady, Go");
     delay(10);
+
+    int RSPinNum     = 2;  
+    int RWPinNum     = A4;
+    int EnablePinNum = 4;
+    int DBPinNum[8]  = {A0, A1, A2, A3, 9, 10, 11, 12};
+  
+  
+    Display1.set_pins(RSPinNum, RWPinNum, EnablePinNum, DBPinNum);
+    Display1.screen_init(4, 2, 0);
+    Display1.clear_screen();
+    delay(2000);
+    Display1.write_byte('f', 1, 0);
+    delay(1000);
+    // char writeString1[] = "ARDUINO RULES!";
+    // Display1.write_line(writeString1, 1, 0);
+    // delay(100);
 }
 
 /**
@@ -123,6 +146,7 @@ void loop() {
     else if (message[0] == '2') {
         // Display Read
         // ...
+
     }
     else if (message[0] == '3') {
         // Distance Read
@@ -131,6 +155,7 @@ void loop() {
     else if (message[0] == '4') {
         // Display Write
         Serial.println(message);
+        displayMessage(message);
         return;
     }
     else {
@@ -192,6 +217,10 @@ bool parsePacket() {
     }
 }
 
+void displayMessage(char input_message[]) {
+    Display1.write_line(input_message[1], 1, 0);
+}
+
 void moveRobot(char command) {
     switch(command) {
         case FORWARD:
@@ -221,14 +250,20 @@ void moveRobot(char command) {
             break;
         case FASTER:
             SPEED = SPEED + 25;
+            if (SPEED > 150){
+                SPEED = 150;
+            }
             Serial.print("Speed increased to ");
             Serial.println(SPEED);
+            break;
         case SLOWER:
             SPEED = SPEED - 25;
+            if (SPEED < 0) {
+                SPEED = 0;
+            }
             Serial.print("Speed decreased to ");
             Serial.println(SPEED);
-        case SWITCH:
-            // TODO: add case where if ` you switch to display mode
+            break;
         default:
             Serial.println("ERROR: Unknown command in legal packet");
             break;
