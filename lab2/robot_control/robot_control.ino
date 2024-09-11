@@ -96,6 +96,9 @@ void motorControl(bool ifLeftMotor, char command);
  * and make robot stop at the beginning.
  */
 void setup() {
+    // Delay start so that voltage can rise to high
+    delay(1000)
+    
     Serial.begin(9600);
     Serial.println("START");
     pinMode(EN1, OUTPUT);

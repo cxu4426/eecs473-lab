@@ -232,6 +232,10 @@ LCD Display1;
 
 void setup() {
   // put your setup code here, to run once:
+
+  //Delay start so voltage can be stable
+  delay(1000)
+  
   Serial.begin(9600);
   int RSPinNum     = 2;  
   int RWPinNum     = A4;
